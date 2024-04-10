@@ -13,6 +13,12 @@ typedef struct ddog_Vec_CChar *(*ddog_DynamicConfigUpdate)(ddog_CharSlice config
                                                            bool return_old);
 
 /**
+ * `QueueId` is a struct that represents a unique identifier for a queue.
+ * It contains a single field, `inner`, which is a 64-bit unsigned integer.
+ */
+typedef uint64_t ddog_QueueId;
+
+/**
  * A 128-bit (16 byte) buffer containing the UUID.
  *
  * # ABI
@@ -123,6 +129,10 @@ extern ddog_Uuid ddtrace_runtime_id;
 
 extern void (*ddog_log_callback)(ddog_CharSlice);
 
+extern const enum ddog_RemoteConfigProduct DDTRACE_REMOTE_CONFIG_PRODUCTS[2];
+
+extern const enum ddog_RemoteConfigCapabilities DDTRACE_REMOTE_CONFIG_CAPABILITIES[6];
+
 extern const uint8_t *DDOG_PHP_FUNCTION;
 
 /**
@@ -158,14 +168,15 @@ struct ddog_Vec_CChar *ddog_CharSlice_to_owned(ddog_CharSlice str);
 
 void ddog_remote_configs_service_env_change(struct ddog_RemoteConfigState *remote_config,
                                             ddog_CharSlice service,
-                                            ddog_CharSlice env);
+                                            ddog_CharSlice env,
+                                            ddog_CharSlice version);
 
 bool ddog_remote_config_alter_dynamic_config(struct ddog_RemoteConfigState *remote_config,
                                              ddog_CharSlice config,
                                              ddog_CharSlice new_value);
 
 void ddog_setup_remote_config(ddog_DynamicConfigUpdate update_config,
-                                      const struct ddog_LiveDebuggerSetup *setup);
+                              const struct ddog_LiveDebuggerSetup *setup);
 
 void ddog_rinit_remote_config(struct ddog_RemoteConfigState *remote_config);
 
