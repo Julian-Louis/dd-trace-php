@@ -184,7 +184,7 @@ void ddog_rshutdown_remote_config(struct ddog_RemoteConfigState *remote_config);
 
 void ddog_shutdown_remote_config(struct ddog_RemoteConfigState*);
 
-bool ddtrace_detect_composer_installed_json(ddog_SidecarTransport **transport,
+bool ddtrace_detect_composer_installed_json(struct ddog_SidecarTransport **transport,
                                             const struct ddog_InstanceId *instance_id,
                                             const ddog_QueueId *queue_id,
                                             ddog_CharSlice path);
@@ -205,7 +205,7 @@ void ddog_sidecar_telemetry_enqueueConfig_buffer(struct ddog_SidecarActionsBuffe
                                                  ddog_CharSlice config_value,
                                                  enum ddog_ConfigurationOrigin origin);
 
-ddog_MaybeError ddog_sidecar_telemetry_buffer_flush(ddog_SidecarTransport **transport,
+ddog_MaybeError ddog_sidecar_telemetry_buffer_flush(struct ddog_SidecarTransport **transport,
                                                     const struct ddog_InstanceId *instance_id,
                                                     const ddog_QueueId *queue_id,
                                                     struct ddog_SidecarActionsBuffer *buffer);
@@ -219,7 +219,7 @@ void ddog_sidecar_telemetry_add_span_metric_point_buffer(struct ddog_SidecarActi
                                                          double metric_value,
                                                          ddog_CharSlice tags);
 
-ddog_MaybeError ddog_sidecar_connect_php(ddog_SidecarTransport **connection,
+ddog_MaybeError ddog_sidecar_connect_php(struct ddog_SidecarTransport **connection,
                                          const char *error_path,
                                          ddog_CharSlice log_level,
                                          bool enable_telemetry);
