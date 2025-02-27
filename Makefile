@@ -112,7 +112,7 @@ $(BUILD_DIR)/run-tests.php: $(if $(ASSUME_COMPILED),, $(BUILD_DIR)/configure)
 	sed -i 's/\bdl(/(bool)(/' $(BUILD_DIR)/run-tests.php # this dl() stuff in run-tests.php is for --EXTENSIONS-- sections, which we don't use; just strip it away (see https://github.com/php/php-src/issues/15367)
 
 $(BUILD_DIR)/Makefile: $(BUILD_DIR)/configure
-	$(Q) (cd $(BUILD_DIR); ./configure --$(if $(RUST_DEBUG_BUILD),enable,disable)-ddtrace-rust-debug $(if $(ASAN), --enable-ddtrace-sanitize) $(EXTRA_CONFIGURE_OPTIONS))
+	$(Q) (cd $(BUILD_DIR); $(if $(ASAN),CFLAGS="${CFLAGS} -DZEND_TRACK_ARENA_ALLOC") ./configure --$(if $(RUST_DEBUG_BUILD),enable,disable)-ddtrace-rust-debug $(if $(ASAN), --enable-ddtrace-sanitize) $(EXTRA_CONFIGURE_OPTIONS))
 
 $(SO_FILE): $(if $(ASSUME_COMPILED),, $(ALL_OBJECT_FILES) $(BUILD_DIR)/compile_rust.sh)
 	$(if $(ASSUME_COMPILED),,$(Q) $(MAKE) -C $(BUILD_DIR) -j)
@@ -1249,13 +1249,13 @@ define run_opentelemetry_tests
 	$(eval TEST_EXTRA_ENV=)
 endef
 
-test_opentelemetry_beta: tests/Frameworks/Custom/OpenTelemetry/composer.lock-php$(PHP_MAJOR_MINOR) tests/OpenTelemetry/composer-beta.lock-php$(PHP_MAJOR_MINOR)
+test_opentelemetry_beta: global_test_run_dependencies tests/Frameworks/Custom/OpenTelemetry/composer.lock-php$(PHP_MAJOR_MINOR) tests/OpenTelemetry/composer-beta$(shell [ $(PHP_MAJOR_MINOR) -le 81 ] && echo "-pre-8.1" || echo '').lock-php$(PHP_MAJOR_MINOR)
 	$(call run_opentelemetry_tests, TESTSUITE_VENDOR_DIR=vendor-beta)
 
-tests/OpenTelemetry/composer-beta.lock-php$(PHP_MAJOR_MINOR): tests/OpenTelemetry/composer-beta.json
-	$(call run_composer_with_lock,tests/OpenTelemetry,composer-beta.json)
+tests/OpenTelemetry/composer-%.lock-php$(PHP_MAJOR_MINOR): tests/OpenTelemetry/composer-%.json
+	$(call run_composer_with_lock,tests/OpenTelemetry,composer-$(*).json)
 
-test_opentelemetry_1: tests/Frameworks/Custom/OpenTelemetry/composer.lock-php$(PHP_MAJOR_MINOR) tests/OpenTelemetry/composer.lock-php$(PHP_MAJOR_MINOR)
+test_opentelemetry_1: global_test_run_dependencies tests/Frameworks/Custom/OpenTelemetry/composer.lock-php$(PHP_MAJOR_MINOR) tests/OpenTelemetry/composer$(shell [ $(PHP_MAJOR_MINOR) -le 81 ] && echo "-pre-8.1" || echo '').lock-php$(PHP_MAJOR_MINOR)
 	$(call run_opentelemetry_tests)
 
 test_opentracing_10: global_test_run_dependencies tests/OpenTracer1Unit/composer.lock-php$(PHP_MAJOR_MINOR) tests/Frameworks/Custom/OpenTracing/composer.lock-php$(PHP_MAJOR_MINOR)
